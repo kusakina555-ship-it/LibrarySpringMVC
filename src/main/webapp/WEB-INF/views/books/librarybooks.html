@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Библиотека книг</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .book-list {
+            margin-top: 20px;
+        }
+        .book-item {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        .available {
+            color: green;
+        }
+        .not-available {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+<h1>Библиотека книг</h1>
+
+<button onclick="loadBooks()">Загрузить список книг</button>
+
+<div id="bookList" class="book-list"></div>
+
+<script>
+    async function loadBooks() {
+        try {
+            // ПРАВИЛЬНЫЙ URL для BookServlet
+            const response = await fetch('/library/api/books');
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const books = await response.json();
+            console.log('Получены книги:', books);
+
+            const bookList = document.getElementById('bookList');
+            bookList.innerHTML = '';
+
+            if (books.length === 0) {
+                bookList.innerHTML = '<p>Библиотека пуста</p>';
+                return;
+            }
+
+            books.forEach(book => {
+                const bookItem = document.createElement('div');
+                bookItem.className = 'book-item';
+                bookItem.innerHTML = `
+                <h3>${book.title}</h3>
+                <p><strong>Автор:</strong> ${book.author}</p>
+                <p><strong>ID:</strong> ${book.id}</p>
+                <p><strong>Доступна:</strong>
+                    <span class="${book.available ? 'available' : 'not-available'}">
+                        ${book.available ? 'Да' : 'Нет'}
+                    </span>
+                </p>
+            `;
+                bookList.appendChild(bookItem);
+            });
+
+        } catch (error) {
+            console.error('Ошибка при загрузке книг:', error);
+            document.getElementById('bookList').innerHTML =
+                `<p>Ошибка при загрузке списка книг: ${error.message}</p>`;
+        }
+    }
+</script>
+</body>
+</html>
