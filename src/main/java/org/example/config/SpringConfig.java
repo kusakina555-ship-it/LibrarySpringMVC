@@ -5,6 +5,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -13,7 +14,7 @@ import org.thymeleaf.spring6.templateresolver.SpringResourceTemplateResolver;
 import org.thymeleaf.spring6.view.ThymeleafViewResolver;
 
 @Configuration
-@ComponentScan("org.example")
+@ComponentScan("org.example") // Убедитесь, что этот пакет правильный
 @EnableWebMvc
 public class SpringConfig implements WebMvcConfigurer {
 
@@ -31,6 +32,7 @@ public class SpringConfig implements WebMvcConfigurer {
         templateResolver.setPrefix("/WEB-INF/views/");
         templateResolver.setSuffix(".html");
         templateResolver.setCharacterEncoding("UTF-8");
+        templateResolver.setTemplateMode("HTML");
         return templateResolver;
     }
 
@@ -42,11 +44,22 @@ public class SpringConfig implements WebMvcConfigurer {
         return templateEngine;
     }
 
+    @Bean
+    public ThymeleafViewResolver viewResolver() {
+        ThymeleafViewResolver viewResolver = new ThymeleafViewResolver();
+        viewResolver.setTemplateEngine(templateEngine());
+        viewResolver.setCharacterEncoding("UTF-8");
+        viewResolver.setOrder(1);
+        return viewResolver;
+    }
+
     @Override
     public void configureViewResolvers(ViewResolverRegistry registry) {
-        ThymeleafViewResolver resolver = new ThymeleafViewResolver();
-        resolver.setTemplateEngine(templateEngine());
-        resolver.setCharacterEncoding("UTF-8");
-        registry.viewResolver(resolver);
+        registry.viewResolver(viewResolver());
     }
+
+//    @Override
+//    public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
+//        configurer.enable();
+//    }
 }
