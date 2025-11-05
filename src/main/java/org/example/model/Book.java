@@ -2,15 +2,24 @@ package org.example.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 //@Data
 //@NoArgsConstructor
 public class Book {
     private static int idCounter = 0;
 
+    // Геттеры и сеттеры
+    @Getter
+    @Setter
     private int id;
+    @Setter
+    @Getter
     private String title;
+    @Setter
+    @Getter
     private String author;
 
     @JsonProperty("isAvailable")
@@ -44,13 +53,6 @@ public class Book {
                 ", Название книги: " + title + ", Автор: " + author +
                 ", Доступна: " + availabilityMessage();
     }
-    // Геттеры и сеттеры
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
-    public String getAuthor() { return author; }
-    public void setAuthor(String author) { this.author = author; }
 
     public Boolean getAvailable() { return isAvailable; }
     public void setAvailable(Boolean available) { isAvailable = available; }
