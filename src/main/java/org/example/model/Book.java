@@ -44,6 +44,8 @@ public class Book {
     @Expose
     private Boolean isAvailable = false;
 
+public Book(){
+}
 
     public Book(String title, String author) {
         this.id = ++idCounter;
@@ -61,7 +63,6 @@ public class Book {
                     .max()
                     .orElse(0);
             idCounter = maxId;
-            System.out.println("Установлен idCounter: " + idCounter);
         }
     }
 

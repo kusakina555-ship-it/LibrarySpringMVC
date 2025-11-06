@@ -10,22 +10,16 @@
     <h1 th:text="${title}">Все книги</h1>
 
     <div class="mb-3">
-        <a href="/books" class="btn btn-outline-primary">Все книги</a>
+        <a href="/books/" class="btn btn-outline-primary">Все книги</a>
         <a href="/books/available" class="btn btn-outline-success">Доступные книги</a>
         <a href="/books/add" class="btn btn-primary">Добавить книгу</a>
     </div>
-
-    <!-- ДОБАВЛЕНО: отладочная информация -->
     <div th:if="${books != null}">
         <p class="text-muted">Всего книг: <span th:text="${books.size()}">0</span></p>
     </div>
-
-    <!-- ИСПРАВЛЕНО: проверка на null -->
     <div th:if="${books == null or books.empty}">
         <div class="alert alert-info">Книги не найдены</div>
     </div>
-
-    <!-- ИСПРАВЛЕНО: проверка на null -->
     <div th:unless="${books == null or books.empty}" class="row">
         <div th:each="book : ${books}" class="col-md-4 mb-3">
             <div class="card">
@@ -33,15 +27,19 @@
                     <h5 class="card-title" th:text="${book.title}">Название</h5>
                     <h6 class="card-subtitle mb-2 text-muted" th:text="${book.author}">Автор</h6>
                     <p class="card-text">
-                        <!-- ВАЖНО: проверьте правильность имени поля -->
                         <span th:if="${book.available}" class="badge bg-success">Доступна</span>
                         <span th:unless="${book.available}" class="badge bg-secondary">Недоступна</span>
-
-                        <!-- ДОБАВЛЕНО: отладочная информация для каждой книги -->
                         <br><small class="text-muted">ID: <span th:text="${book.id}"></span></small>
                     </p>
                     <a th:href="@{/books/{id}(id=${book.id})}" class="btn btn-outline-info btn-sm">Подробнее</a>
-                    <a th:href="@{/books/{id}/edit(id=${book.id})}" class="btn btn-outline-warning btn-sm">Редактировать</a>
+                    <a th:href="@{/books/{id}/edit(id=${book.id})}" class="btn btn-outline-info btn-sm">Редактировать</a>
+                    <!-- Форма для удаления -->
+                    <form th:action="@{/books/{id}/delete(id=${book.id})}" method="post" style="display: inline;">
+                        <button type="submit" class="btn btn-outline-danger btn-sm"
+                                onclick="return confirm('Вы уверены, что хотите удалить эту книгу?')">
+                            Удалить
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>

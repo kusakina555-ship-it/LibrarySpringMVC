@@ -45,10 +45,6 @@ public class LibraryStorage {
 
             if (books != null) {
                 System.out.println("✓ Данные успешно загружены. Загружено книг: " + books.size());
-                // Отладочная информация
-                for (Book book : books) {
-                    System.out.println("  Загружена книга: " + book);
-                }
                 return books;
             } else {
                 System.out.println("Файл пуст или поврежден");
