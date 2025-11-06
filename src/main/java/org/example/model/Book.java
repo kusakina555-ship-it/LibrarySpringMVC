@@ -1,29 +1,49 @@
 package org.example.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.List;
+import com.google.gson.annotations.Expose;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-//@Data
-//@NoArgsConstructor
+@Data
 public class Book {
     private static int idCounter = 0;
-
-    // Геттеры и сеттеры
-    @Getter
-    @Setter
+@Expose
     private int id;
-    @Setter
-    @Getter
+@Expose
     private String title;
-    @Setter
-    @Getter
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+    private void setId(int id) {
+        this.id = id;
+        // Обновляем счетчик при загрузке существующих книг
+        if (id > idCounter) {
+            idCounter = id;
+        }
+    }
+    public int getId() {
+        return id;
+    }
+    @Expose
     private String author;
 
-    @JsonProperty("isAvailable")
+    @Expose
     private Boolean isAvailable = false;
+
 
     public Book(String title, String author) {
         this.id = ++idCounter;
@@ -36,10 +56,12 @@ public class Book {
         if (books.isEmpty()) {
             idCounter = 0;
         } else {
-            idCounter = books.stream()
+            int maxId = books.stream()
                     .mapToInt(Book::getId)
                     .max()
                     .orElse(0);
+            idCounter = maxId;
+            System.out.println("Установлен idCounter: " + idCounter);
         }
     }
 
@@ -54,6 +76,13 @@ public class Book {
                 ", Доступна: " + availabilityMessage();
     }
 
-    public Boolean getAvailable() { return isAvailable; }
-    public void setAvailable(Boolean available) { isAvailable = available; }
+    // Геттер для Thymeleaf
+    public Boolean getAvailable() {
+        return isAvailable;
+    }
+
+    // Сеттер для изменения статуса доступности
+    public void setAvailable(Boolean available) {
+        isAvailable = available;
+    }
 }

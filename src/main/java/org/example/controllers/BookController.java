@@ -25,6 +25,20 @@ public class BookController {
     @GetMapping("/")
     public String getAllBooks(Model model) {
             List<Book> books = libraryService.getAllBooks();
+        // Детальный отладочный вывод
+        System.out.println("=== DEBUG BOOKS ===");
+        System.out.println("Количество книг: " + books.size());
+        for (int i = 0; i < books.size(); i++) {
+            Book book = books.get(i);
+            System.out.println("Книга " + i + ":");
+            System.out.println("  ID: " + book.getId());
+            System.out.println("  Title: '" + book.getTitle() + "'");
+            System.out.println("  Author: '" + book.getAuthor() + "'");
+            System.out.println("  Available: " + book.getAvailable());
+            System.out.println("  Title null? " + (book.getTitle() == null));
+            System.out.println("  Author null? " + (book.getAuthor() == null));
+        }
+        System.out.println("===================");
             model.addAttribute("books", books);
             model.addAttribute("title", "Все книги");
             return "books/books"; // вернет books.html
