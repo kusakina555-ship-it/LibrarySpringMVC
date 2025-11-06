@@ -20,15 +20,51 @@ public class LibraryService {
 
     @PostConstruct
     public void init() {
+        // Загружаем книги из файла
         books = LibraryStorage.loadBooks();
-        Book.updateIdCounter(books);
 
-        // Добавляем тестовые данные, если библиотека пуста
+        // ОБЯЗАТЕЛЬНО обновляем счетчик ДО добавления тестовых книг
+        Book.updateIdCounter(books);
+        log.info("Загружено книг: {}", books.size());
+
+        // Добавляем тестовые данные ТОЛЬКО если библиотека пуста
         if (books.isEmpty()) {
-            addBook(new Book("Война и мир", "Лев Толстой"));
-            addBook(new Book("Преступление и наказание", "Федор Достоевский"));
-            addBook(new Book("Мастер и Маргарита", "Михаил Булгаков"));
+            log.info("Библиотека пуста, добавляем тестовые книги...");
+            addBook("Война и мир", "Лев Толстой");
+            addBook("Преступление и наказание", "Федор Достоевский");
+            addBook("Мастер и Маргарита", "Михаил Булгаков");
             log.info("Добавлены тестовые книги. Всего книг: {}", books.size());
+        } else {
+            log.info("Библиотека загружена из файла. Всего книг: {}", books.size());
+            // Логируем загруженные книги для отладки
+            for (Book book : books) {
+                log.info("Загружена книга: {}", book);
+            }
+        }
+    }
+
+    // Новый метод для добавления книг по названию и автору
+    public Book addBook(String title, String author) {
+        Book book = new Book(title, author);
+        books.add(book);
+        LibraryStorage.saveBooks(books);
+        log.info("Добавлена новая книга: {}", book);
+        return book;
+    }
+
+    public Book addBook(Book book) {
+        // Если книга не имеет ID (новая книга), создаем ее заново
+        if (book.getId() == 0) {
+            if (book.getTitle() == null || book.getAuthor() == null) {
+                throw new IllegalArgumentException("Невозможно добавить книгу с пустыми названием или автором");
+            }
+            return addBook(book.getTitle(), book.getAuthor());
+        } else {
+            // Если книга уже имеет ID (например, из JSON), просто добавляем ее
+            books.add(book);
+            LibraryStorage.saveBooks(books);
+            log.info("Добавлена существующая книга: {}", book);
+            return book;
         }
     }
 
@@ -47,17 +83,6 @@ public class LibraryService {
                 .filter(book -> book.getId() == id)
                 .findFirst()
                 .orElseThrow(() -> new BookNotFoundException("Книга с id " + id + " не найдена"));
-    }
-
-    public Book addBook(Book book) {
-        // Если книга без ID, генерируем новый
-        if (book.getId() == 0) {
-            book = new Book(book.getTitle(), book.getAuthor());
-        }
-        books.add(book);
-        LibraryStorage.saveBooks(books);
-        log.info("Добавлена новая книга id: {}", book.getId());
-        return book;
     }
 
     public void deleteBook(int id) {
