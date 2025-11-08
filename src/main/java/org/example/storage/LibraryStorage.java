@@ -23,10 +23,6 @@ public class LibraryStorage {
         try (FileWriter writer = new FileWriter(FILE_NAME)) {
             gson.toJson(books, writer);
             System.out.println("✓ Данные успешно сохранены. Книг: " + books.size());
-            // Отладочная информация
-            for (Book book : books) {
-                System.out.println("  Сохранена книга: " + book);
-            }
         } catch (IOException e) {
             System.out.println("✗ Ошибка при сохранении данных: " + e.getMessage());
         }
