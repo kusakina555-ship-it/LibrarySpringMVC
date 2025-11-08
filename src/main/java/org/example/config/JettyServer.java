@@ -1,10 +1,15 @@
 package org.example.config;
 
+import jakarta.servlet.DispatcherType;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
+import org.springframework.web.filter.HiddenHttpMethodFilter;
 import org.springframework.web.servlet.DispatcherServlet;
+
+import java.util.EnumSet;
 
 public class JettyServer {
 
@@ -17,8 +22,7 @@ public class JettyServer {
         context.setResourceBase("src/main/webapp");
 
         // Создаем Spring контекст
-        AnnotationConfigWebApplicationContext webApplicationContext =
-                new AnnotationConfigWebApplicationContext();
+        AnnotationConfigWebApplicationContext webApplicationContext = new AnnotationConfigWebApplicationContext();
         webApplicationContext.register(SpringConfig.class);
 
         // Создаем DispatcherServlet
@@ -29,15 +33,19 @@ public class JettyServer {
         servletHolder.setInitOrder(1);
         context.addServlet(servletHolder, "/*");
 
+        // РЕГИСТРАЦИЯ ФИЛЬТРА ДЛЯ PATCH МЕТОДОВ
+        HiddenHttpMethodFilter hiddenHttpMethodFilter = new HiddenHttpMethodFilter();
+        FilterHolder filterHolder = new FilterHolder(hiddenHttpMethodFilter);
+        context.addFilter(filterHolder, "/*", EnumSet.of(DispatcherType.REQUEST));
+
+
+
         server.setHandler(context);
 
         try {
             server.start();
             System.out.println("✅ Jetty 11+ сервер запущен успешно!");
-            System.out.println("📍 URL: http://localhost:8080");
             System.out.println("📚 Доступ к книгам: http://localhost:8080/books/");
-            System.out.println("🚀 Сервер работает с Spring 6 и Jakarta Servlet...");
-
             server.join();
         } catch (Exception e) {
             System.err.println("❌ Ошибка запуска Jetty: " + e.getMessage());
