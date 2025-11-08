@@ -8,23 +8,20 @@ import lombok.NoArgsConstructor;
 @Data
 public class Book {
     private static int idCounter = 0;
-@Expose
+    @Expose
     private int id;
-@Expose
+    @Expose
     private String title;
 
     public String getAuthor() {
         return author;
     }
-
     public void setAuthor(String author) {
         this.author = author;
     }
-
     public String getTitle() {
         return title;
     }
-
     public void setTitle(String title) {
         this.title = title;
     }
@@ -40,7 +37,6 @@ public class Book {
     }
     @Expose
     private String author;
-
     @Expose
     private Boolean isAvailable = false;
 

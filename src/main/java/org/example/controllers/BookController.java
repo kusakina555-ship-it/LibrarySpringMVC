@@ -22,14 +22,15 @@ public class BookController {
     // Главная страница со списком всех книг
     @GetMapping({"", "/"})
     public String getAllBooks(Model model) {
-        List<Book> books = libraryService.getAllBooks();
-        for (int i = 0; i < books.size(); i++) {
-            Book book = books.get(i);
+        try {
+            List<Book> books = libraryService.getAllBooks();
+            model.addAttribute("books", books);
+            model.addAttribute("title", "Все книги");
+            return "books/books"; // вернет books.html
+        } catch (Exception e) {
+            model.addAttribute("error", "Ошибка при загрузке книг: " + e.getMessage());
+            return "books/error";
         }
-        model.addAttribute("books", books);
-        model.addAttribute("title", "Все книги");
-        return "books/books"; // вернет books.html
-        //    model.addAttribute("error", "Ошибка при загрузке книг: " + e.getMessage());
     }
 
     // Страница с доступными книгами
