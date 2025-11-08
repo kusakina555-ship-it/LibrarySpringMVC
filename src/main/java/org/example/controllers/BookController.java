@@ -95,7 +95,7 @@ public class BookController {
     }
 
     // Обработка обновления книги
-    @PostMapping("/{id}")
+    @PatchMapping("/{id}")
     public String updateBook(@PathVariable("id") int bookId, @ModelAttribute Book book, Model model) {
         try {
             Book updatedBook = libraryService.updateBook(bookId, book);
@@ -109,7 +109,7 @@ public class BookController {
     }
 
     // Удаление книги
-    @PostMapping("/{id}/delete")
+    @DeleteMapping("/{id}")
     public String deleteBook(@PathVariable("id") int id, Model model) {
         try {
             libraryService.deleteBook(id);

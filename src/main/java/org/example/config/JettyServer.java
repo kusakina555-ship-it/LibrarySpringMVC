@@ -1,10 +1,15 @@
 package org.example.config;
 
+import jakarta.servlet.DispatcherType;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
+import org.springframework.web.filter.HiddenHttpMethodFilter;
 import org.springframework.web.servlet.DispatcherServlet;
+
+import java.util.EnumSet;
 
 public class JettyServer {
 
@@ -27,6 +32,14 @@ public class JettyServer {
         ServletHolder servletHolder = new ServletHolder("dispatcher", dispatcherServlet);
         servletHolder.setInitOrder(1);
         context.addServlet(servletHolder, "/*");
+
+        // РЕГИСТРАЦИЯ ФИЛЬТРА ДЛЯ PATCH МЕТОДОВ
+        HiddenHttpMethodFilter hiddenHttpMethodFilter = new HiddenHttpMethodFilter();
+        FilterHolder filterHolder = new FilterHolder(hiddenHttpMethodFilter);
+        context.addFilter(filterHolder, "/*", EnumSet.of(DispatcherType.REQUEST));
+
+
+
         server.setHandler(context);
 
         try {

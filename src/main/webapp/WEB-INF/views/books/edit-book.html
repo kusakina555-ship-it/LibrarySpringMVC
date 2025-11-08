@@ -112,7 +112,7 @@
         <div class="card form-card">
             <div class="card-body p-4">
                 <form th:action="@{/books/{id}(id=${book.id})}" th:object="${book}" method="post" id="editBookForm">
-
+                    <input type="hidden" name="_method" value="patch" />
                     <!-- Поле: Название книги -->
                     <div class="form-group">
                         <label for="title" class="form-label required-label">Название книги</label>

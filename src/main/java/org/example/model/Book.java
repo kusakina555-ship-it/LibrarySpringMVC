@@ -1,9 +1,7 @@
 package org.example.model;
 
-import java.util.List;
 import com.google.gson.annotations.Expose;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
 public class Book {

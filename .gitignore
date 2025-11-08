@@ -2,6 +2,14 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+build/
+out/
+bin/
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
 
 ### IntelliJ IDEA ###
 .idea/modules.xml
@@ -12,6 +20,11 @@ target/
 *.iws
 *.iml
 *.ipr
+
+# IntelliJ IDEA (дополняем то, что уже есть)
+.idea/
+*.orig
+.idea_modules/
 
 ### Eclipse ###
 .apt_generated
@@ -28,7 +41,6 @@ target/
 /dist/
 /nbdist/
 /.nb-gradle/
-build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
@@ -37,3 +49,13 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+# Default ignored files
+/shelf/
+/.idea/workspace.xml
+
+# Логи
+*.log
+logs/
+
+

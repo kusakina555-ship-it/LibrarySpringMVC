@@ -98,14 +98,14 @@
                         <a th:href="@{/books/{id}/edit(id=${book.id})}" class="btn btn-warning">
                             Редактировать книгу
                         </a>
-                        <form th:action="@{/books/{id}/delete(id=${book.id})}" method="post" class="d-grid">
+                        <form th:action="@{/books/{id}(id=${book.id})}" method="post" class="d-grid">
+                            <input type="hidden" name="_method" value="delete" />
                             <button type="submit" class="btn btn-danger"
                                     onclick="return confirm('Вы уверены, что хотите удалить эту книгу?')">
                             Удалить книгу
                                 </button>
                         </form>
-                        </a>
-                        <a href="/books/" class="btn btn-outline-secondary back-button">
+                        <a href="@{/books/}" class="btn btn-outline-secondary back-button">
                             ← Назад к списку
                         </a>
                     </div>
