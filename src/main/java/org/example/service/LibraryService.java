@@ -24,7 +24,6 @@ public class LibraryService {
         this.bookDao = bookDao;
     }
 
-    // Убираем всю логику инициализации
     @Transactional(readOnly = true)
     public List<Book> getAllBooks() {
         return bookDao.findAll();
@@ -63,7 +62,6 @@ public class LibraryService {
     }
 
     public void deleteBook(int id) {
-        // Проверяем существование книги
         Book bookToDelete = getBookById(id);
         bookDao.delete(id);
         log.info("Удалена книга из БД id: {}", id);
