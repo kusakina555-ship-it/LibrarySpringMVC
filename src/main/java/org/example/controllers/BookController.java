@@ -49,7 +49,7 @@ public class BookController {
 
     // Страница конкретной книги
     @GetMapping("/{id}")
-    public String getBookById(@PathVariable("id") int bookId, Model model) {
+    public String getBookById(@PathVariable("id") Integer bookId, Model model) {
         try {
             Book book = libraryService.getBookById(bookId);
             model.addAttribute("book", book);
@@ -83,7 +83,7 @@ public class BookController {
 
     // Форма редактирования книги
     @GetMapping("/{id}/edit")
-    public String showEditBookForm(@PathVariable("id") int bookId, Model model) {
+    public String showEditBookForm(@PathVariable("id") Integer bookId, Model model) {
         try {
             Book book = libraryService.getBookById(bookId);
             model.addAttribute("book", book);
@@ -96,7 +96,7 @@ public class BookController {
 
     // Обработка обновления книги
     @PatchMapping("/{id}")
-    public String updateBook(@PathVariable("id") int bookId, @ModelAttribute Book book, Model model) {
+    public String updateBook(@PathVariable("id") Integer bookId, @ModelAttribute Book book, Model model) {
         try {
             Book updatedBook = libraryService.updateBook(bookId, book);
             model.addAttribute("message", "Книга успешно обновлена!");
@@ -110,7 +110,7 @@ public class BookController {
 
     // Удаление книги
     @DeleteMapping("/{id}")
-    public String deleteBook(@PathVariable("id") int id, Model model) {
+    public String deleteBook(@PathVariable("id") Integer id, Model model) {
         try {
             libraryService.deleteBook(id);
             model.addAttribute("message", "Книга успешно удалена!");

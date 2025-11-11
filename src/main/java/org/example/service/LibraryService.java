@@ -1,95 +1,72 @@
 package org.example.service;
 
+import org.example.dao.BookDao;
 import org.example.exception.BookNotFoundException;
 import org.example.model.Book;
-import org.example.storage.LibraryStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
-import jakarta.annotation.PostConstruct;
 
 @Service
+@Transactional
 public class LibraryService {
 
     private static final Logger log = LoggerFactory.getLogger(LibraryService.class);
 
-    private List<Book> books;
+    private final BookDao bookDao;
 
-    @PostConstruct
-    public void init() {
-        // Загружаем книги из файла
-        books = LibraryStorage.loadBooks();
-
-        // ОБЯЗАТЕЛЬНО обновляем счетчик ДО добавления тестовых книг
-        Book.updateIdCounter(books);
-        log.info("Загружено книг: {}", books.size());
-
-        // Добавляем тестовые данные ТОЛЬКО если библиотека пуста
-        if (books.isEmpty()) {
-            log.info("Библиотека пуста, добавляем тестовые книги...");
-            addBook("Война и мир", "Лев Толстой");
-            addBook("Преступление и наказание", "Федор Достоевский");
-            addBook("Мастер и Маргарита", "Михаил Булгаков");
-            log.info("Добавлены тестовые книги. Всего книг: {}", books.size());
-        } else {
-            log.info("Библиотека загружена из файла. Всего книг: {}", books.size());
-            // Логируем загруженные книги для отладки
-            for (Book book : books) {
-                log.info("Загружена книга: {}", book);
-            }
-        }
+    @Autowired
+    public LibraryService(BookDao bookDao) {
+        this.bookDao = bookDao;
     }
 
-    // Новый метод для добавления книг по названию и автору
+    // Убираем всю логику инициализации
+    @Transactional(readOnly = true)
+    public List<Book> getAllBooks() {
+        return bookDao.findAll();
+    }
+
+    @Transactional(readOnly = true)
+    public List<Book> getAvailableBooks() {
+        return bookDao.findAvailableBooks();
+    }
+
+    @Transactional(readOnly = true)
+    public Book getBookById(int id) {
+        return bookDao.findById(id)
+                .orElseThrow(() -> new BookNotFoundException("Книга с id " + id + " не найдена в БД"));
+    }
+
     public Book addBook(String title, String author) {
         Book book = new Book(title, author);
-        books.add(book);
-        LibraryStorage.saveBooks(books);
-        log.info("Добавлена новая книга: {}", book);
-        return book;
+        Book savedBook = bookDao.save(book);
+        log.info("Добавлена новая книга в БД: {}", savedBook);
+        return savedBook;
     }
 
     public Book addBook(Book book) {
-        // Если книга не имеет ID (новая книга), создаем ее заново
-        if (book.getId() == 0) {
-            if (book.getTitle() == null || book.getAuthor() == null) {
-                throw new IllegalArgumentException("Невозможно добавить книгу с пустыми названием или автором");
-            }
-            return addBook(book.getTitle(), book.getAuthor());
-        } else {
-            // Если книга уже имеет ID (например, из JSON), просто добавляем ее
-            books.add(book);
-            LibraryStorage.saveBooks(books);
-            log.info("Добавлена существующая книга: {}", book);
-            return book;
+        if (book.getTitle() == null || book.getAuthor() == null) {
+            throw new IllegalArgumentException("Невозможно добавить книгу с пустыми названием или автором");
         }
-    }
 
-    public List<Book> getAllBooks() {
-        return new ArrayList<>(books);
-    }
+        if (book.getId() != null) {
+            book.setId(null);
+        }
 
-    public List<Book> getAvailableBooks() {
-        return books.stream()
-                .filter(Book::getAvailable)
-                .collect(java.util.stream.Collectors.toList());
-    }
-
-    public Book getBookById(int id) {
-        return books.stream()
-                .filter(book -> book.getId() == id)
-                .findFirst()
-                .orElseThrow(() -> new BookNotFoundException("Книга с id " + id + " не найдена"));
+        Book savedBook = bookDao.save(book);
+        log.info("Добавлена новая книга в БД: {}", savedBook);
+        return savedBook;
     }
 
     public void deleteBook(int id) {
-        Book bookToRemove = getBookById(id);
-        books.remove(bookToRemove);
-        LibraryStorage.saveBooks(books);
-        log.info("Удалена книга id: {}", id);
+        // Проверяем существование книги
+        Book bookToDelete = getBookById(id);
+        bookDao.delete(id);
+        log.info("Удалена книга из БД id: {}", id);
     }
 
     public Book updateBook(int id, Book updatedBook) {
@@ -97,18 +74,17 @@ public class LibraryService {
         existingBook.setTitle(updatedBook.getTitle());
         existingBook.setAuthor(updatedBook.getAuthor());
         existingBook.setAvailable(updatedBook.getAvailable());
-        LibraryStorage.saveBooks(books);
-        log.info("Обновлена книга id: {}", id);
-        return existingBook;
+
+        Book updated = bookDao.update(existingBook);
+        log.info("Обновлена книга в БД id: {}", id);
+        return updated;
     }
 
+    @Transactional(readOnly = true)
     public Book getByTitleAndAuthor(String title, String author) {
-        return books.stream()
-                .filter(book -> book.getTitle().equalsIgnoreCase(title) &&
-                        book.getAuthor().equalsIgnoreCase(author))
-                .findFirst()
+        return bookDao.findByTitleAndAuthor(title, author)
                 .orElseThrow(() -> new BookNotFoundException(
-                        "Книга '" + title + "' автора '" + author + "' не найдена"
+                        "Книга '" + title + "' автора '" + author + "' не найдена в БД"
                 ));
     }
 }

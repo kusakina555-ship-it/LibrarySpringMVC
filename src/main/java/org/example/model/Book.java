@@ -1,16 +1,37 @@
 package org.example.model;
 
 import com.google.gson.annotations.Expose;
+import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
+@Entity
+@Table(name = "books")
 public class Book {
-    private static int idCounter = 0;
-    @Expose
-    private int id;
-    @Expose
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
+    @Column(name = "title", nullable = false, length = 500)
     private String title;
 
+    @Column(name = "author", nullable = false, length = 255)
+    private String author;
+
+    @Column(name = "is_available")
+    private Boolean isAvailable = true;
+
+    // автоматическое время создания/обновления
+    @Column(name = "created_at", updatable = false)
+    private java.time.LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private java.time.LocalDateTime updatedAt;
+
+    //РУЧНЫЕ ГЕТТЕРЫ И СЕТТЕРЫ оставлены специально, потому что могут быть конфликты без них
     public String getAuthor() {
         return author;
     }
@@ -23,41 +44,50 @@ public class Book {
     public void setTitle(String title) {
         this.title = title;
     }
-    private void setId(int id) {
-        this.id = id;
-        // Обновляем счетчик при загрузке существующих книг
-        if (id > idCounter) {
-            idCounter = id;
-        }
-    }
-    public int getId() {
+    public Integer getId() {
         return id;
     }
-    @Expose
-    private String author;
-    @Expose
-    private Boolean isAvailable = false;
+    public void setId(Integer id) {
+        this.id = id;
+    }
+    public Boolean getAvailable() {
+        return isAvailable;
+    }
+    public void setAvailable(Boolean available) {
+        isAvailable = available;
+    }
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 
-public Book(){
-}
+    public Book() {
+    }
 
     public Book(String title, String author) {
-        this.id = ++idCounter;
         this.title = title;
         this.author = author;
         this.isAvailable = true;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
     }
 
-    public static void updateIdCounter(java.util.List<Book> books) {
-        if (books.isEmpty()) {
-            idCounter = 0;
-        } else {
-            int maxId = books.stream()
-                    .mapToInt(Book::getId)
-                    .max()
-                    .orElse(0);
-            idCounter = maxId;
-        }
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
     }
 
     public String availabilityMessage() {
@@ -69,15 +99,5 @@ public Book(){
         return "id=" + id +
                 ", Название книги: " + title + ", Автор: " + author +
                 ", Доступна: " + availabilityMessage();
-    }
-
-    // Геттер для Thymeleaf
-    public Boolean getAvailable() {
-        return isAvailable;
-    }
-
-    // Сеттер для изменения статуса доступности
-    public void setAvailable(Boolean available) {
-        isAvailable = available;
     }
 }
