@@ -63,30 +63,4 @@ public class BookDao {
         query.setParameter("author", author);
         return query.uniqueResultOptional();
     }
-
-    // Дополнительные методы для PostgreSQL
-    public List<Book> findByAuthor(String author) {
-        Query<Book> query = getCurrentSession()
-                .createQuery("FROM Book WHERE LOWER(author) LIKE LOWER(:author) ORDER BY title", Book.class);
-        query.setParameter("author", "%" + author + "%");
-        return query.getResultList();
-    }
-
-    public List<Book> searchByTitle(String titleKeyword) {
-        Query<Book> query = getCurrentSession()
-                .createQuery("FROM Book WHERE LOWER(title) LIKE LOWER(:keyword) ORDER BY title", Book.class);
-        query.setParameter("keyword", "%" + titleKeyword + "%");
-        return query.getResultList();
-    }
-    //  метод для проверки существования книги по ID
-    public boolean existsById(Integer id) {
-        return findById(id).isPresent();
-    }
-
-    //  метод для подсчета книг
-    public long count() {
-        Query<Long> query = getCurrentSession()
-                .createQuery("SELECT COUNT(*) FROM Book", Long.class);
-        return query.uniqueResult();
-    }
 }

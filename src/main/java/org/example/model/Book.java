@@ -1,14 +1,15 @@
 package org.example.model;
 
-import com.google.gson.annotations.Expose;
 import jakarta.persistence.*;
-import lombok.Data;
 
 import java.time.LocalDateTime;
 
-@Data
 @Entity
-@Table(name = "books")
+@Table(name = "books",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_books_title_author",
+                columnNames = {"title", "author"}
+        ))
 public class Book {
 
     @Id
@@ -36,13 +37,22 @@ public class Book {
         return author;
     }
     public void setAuthor(String author) {
-        this.author = author;
+        if (author == null || author.trim().isEmpty()) {
+            throw new IllegalArgumentException("Автор не может быть пустым");
+        }
+        this.author = author.trim();
     }
     public String getTitle() {
         return title;
     }
     public void setTitle(String title) {
-        this.title = title;
+        if (title == null || title.trim().isEmpty()) {
+            throw new IllegalArgumentException("Название книги не может быть пустым");
+        }
+        if (title.trim().length() > 500) {
+            throw new IllegalArgumentException("Название книги не может превышать 500 символов");
+        }
+        this.title = title.trim();
     }
     public Integer getId() {
         return id;
@@ -73,21 +83,53 @@ public class Book {
     }
 
     public Book(String title, String author) {
-        this.title = title;
-        this.author = author;
+        setTitle(title);
+        setAuthor(author); // сеттеры для валидации
         this.isAvailable = true;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }
     @PrePersist
     protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
+        // Дополнительная валидация при сохранении
+        validateFields();
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+        if (updatedAt == null) {
+            updatedAt = LocalDateTime.now();
+        }
     }
 
     @PreUpdate
     protected void onUpdate() {
+        // Дополнительная валидация при обновлении
+        validateFields();
         updatedAt = LocalDateTime.now();
+    }
+
+    // Валидация полей (аналог CHECK constraints из БД)
+    private void validateFields() {
+        // Проверка title (аналог chk_books_title_not_empty)
+        if (title == null || title.trim().isEmpty()) {
+            throw new IllegalArgumentException("Название книги не может быть пустым");
+        }
+        if (title.length() > 500) {
+            throw new IllegalArgumentException("Название книги не может превышать 500 символов");
+        }
+
+        // Проверка author (аналог chk_books_author_not_empty)
+        if (author == null || author.trim().isEmpty()) {
+            throw new IllegalArgumentException("Автор не может быть пустым");
+        }
+        if (author.length() > 255) {
+            throw new IllegalArgumentException("Имя автора не может превышать 255 символов");
+        }
+
+        // Проверка isAvailable (не может быть null)
+        if (isAvailable == null) {
+            isAvailable = true;
+        }
     }
 
     public String availabilityMessage() {
@@ -99,5 +141,22 @@ public class Book {
         return "id=" + id +
                 ", Название книги: " + title + ", Автор: " + author +
                 ", Доступна: " + availabilityMessage();
+    }
+    // equals и hashCode для правильной работы unique constraint
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Book)) return false;
+        Book book = (Book) o;
+        if (!getTitle().equalsIgnoreCase(book.getTitle())) return false;
+        return getAuthor().equalsIgnoreCase(book.getAuthor());
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getTitle().toLowerCase().hashCode();
+        result = 31 * result + getAuthor().toLowerCase().hashCode();
+        return result;
     }
 }
