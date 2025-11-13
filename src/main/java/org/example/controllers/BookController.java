@@ -1,6 +1,6 @@
 package org.example.controllers;
 import org.example.model.Book;
-import org.example.service.LibraryService;
+import org.example.service.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,18 +12,18 @@ import java.util.List;
 @Controller
 @RequestMapping("/books")
 public class BookController {
-    private final LibraryService libraryService;
+    private final BookService bookService;
 
     @Autowired
-    public BookController(LibraryService libraryService) {
-        this.libraryService = libraryService;
+    public BookController(BookService bookService) {
+        this.bookService = bookService;
     }
 
     // Главная страница со списком всех книг
     @GetMapping({"", "/"})
     public String getAllBooks(Model model) {
         try {
-            List<Book> books = libraryService.getAllBooks();
+            List<Book> books = bookService.getAllBooks();
             model.addAttribute("books", books);
             model.addAttribute("title", "Все книги");
             return "books/books"; // вернет books.html
@@ -37,7 +37,7 @@ public class BookController {
     @GetMapping("/available")
     public String getAvailableBooks(Model model) {
         try {
-            List<Book> books = libraryService.getAvailableBooks();
+            List<Book> books = bookService.getAvailableBooks();
             model.addAttribute("books", books);
             model.addAttribute("title", "Доступные книги");
             return "books/books";
@@ -49,9 +49,9 @@ public class BookController {
 
     // Страница конкретной книги
     @GetMapping("/{id}")
-    public String getBookById(@PathVariable("id") int bookId, Model model) {
+    public String getBookById(@PathVariable("id") Integer bookId, Model model) {
         try {
-            Book book = libraryService.getBookById(bookId);
+            Book book = bookService.getBookById(bookId);
             model.addAttribute("book", book);
             return "books/book-details";
         } catch (Exception e) {
@@ -71,7 +71,7 @@ public class BookController {
     @PostMapping
     public String addBook(@ModelAttribute Book book, Model model) {
         try {
-            Book savedBook = libraryService.addBook(book);
+            Book savedBook = bookService.addBook(book);
             model.addAttribute("message", "Книга успешно добавлена!");
             return "redirect:/books/" + savedBook.getId();
         } catch (Exception e) {
@@ -83,9 +83,9 @@ public class BookController {
 
     // Форма редактирования книги
     @GetMapping("/{id}/edit")
-    public String showEditBookForm(@PathVariable("id") int bookId, Model model) {
+    public String showEditBookForm(@PathVariable("id") Integer bookId, Model model) {
         try {
-            Book book = libraryService.getBookById(bookId);
+            Book book = bookService.getBookById(bookId);
             model.addAttribute("book", book);
             return "books/edit-book";
         } catch (Exception e) {
@@ -96,9 +96,9 @@ public class BookController {
 
     // Обработка обновления книги
     @PatchMapping("/{id}")
-    public String updateBook(@PathVariable("id") int bookId, @ModelAttribute Book book, Model model) {
+    public String updateBook(@PathVariable("id") Integer bookId, @ModelAttribute Book book, Model model) {
         try {
-            Book updatedBook = libraryService.updateBook(bookId, book);
+            Book updatedBook = bookService.updateBook(bookId, book);
             model.addAttribute("message", "Книга успешно обновлена!");
             return "redirect:/books/" + updatedBook.getId();
         } catch (Exception e) {
@@ -110,9 +110,9 @@ public class BookController {
 
     // Удаление книги
     @DeleteMapping("/{id}")
-    public String deleteBook(@PathVariable("id") int id, Model model) {
+    public String deleteBook(@PathVariable("id") Integer id, Model model) {
         try {
-            libraryService.deleteBook(id);
+            bookService.deleteBook(id);
             model.addAttribute("message", "Книга успешно удалена!");
             return "redirect:/books";
         } catch (Exception e) {
